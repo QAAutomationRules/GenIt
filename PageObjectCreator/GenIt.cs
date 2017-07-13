@@ -90,7 +90,15 @@ namespace PageObjectCreator
             {
                 foreach (HtmlNode node in doc.DocumentNode.SelectNodes("//h1"))
                 {
-                    tagsList.Add(node.ChildNodes[0].InnerHtml);
+                    tagsList.Add("//h1[contains(text(),'" + node.ChildNodes[0].InnerHtml + "')]");
+                }
+                foreach (HtmlNode node in doc.DocumentNode.SelectNodes("//h2"))
+                {
+                    tagsList.Add("//h2[contains(text(),'" + node.ChildNodes[0].InnerHtml + "')]");
+                }
+                foreach (HtmlNode node in doc.DocumentNode.SelectNodes("//h3"))
+                {
+                    tagsList.Add("//h3[contains(text(),'" + node.ChildNodes[0].InnerHtml + "')]");
                 }
                 foreach (HtmlNode node in doc.DocumentNode.SelectNodes("//li"))
                 {
@@ -100,7 +108,15 @@ namespace PageObjectCreator
                 {
                     tagsList.Add(node.ChildNodes[0].InnerHtml);
                 }
+                foreach (HtmlNode node in doc.DocumentNode.SelectNodes("//img"))
+                {
+                    tagsList.Add(node.ChildNodes[0].InnerHtml);
+                }
                 foreach (HtmlNode node in doc.DocumentNode.SelectNodes("//p"))
+                {
+                    tagsList.Add(node.ChildNodes[0].InnerHtml);
+                }
+                foreach (HtmlNode node in doc.DocumentNode.SelectNodes("//div[@id]"))
                 {
                     tagsList.Add(node.ChildNodes[0].InnerHtml);
                 }
@@ -109,6 +125,18 @@ namespace PageObjectCreator
                     tagsList.Add(node.ChildNodes[0].InnerHtml);
                 }
                 foreach (HtmlNode node in doc.DocumentNode.SelectNodes("//button"))
+                {
+                    tagsList.Add(node.ChildNodes[0].InnerHtml);
+                }
+                foreach (HtmlNode node in doc.DocumentNode.SelectNodes("//div[@class]"))
+                {
+                    tagsList.Add(node.ChildNodes[0].InnerHtml);
+                }
+                foreach (HtmlNode node in doc.DocumentNode.SelectNodes("//th"))
+                {
+                    tagsList.Add(node.ChildNodes[0].InnerHtml);
+                }
+                foreach (HtmlNode node in doc.DocumentNode.SelectNodes("//td"))
                 {
                     tagsList.Add(node.ChildNodes[0].InnerHtml);
                 }
