@@ -6,6 +6,7 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Abot.Crawler;
 using Abot.Poco;
 using CsQuery.ExtensionMethods;
+using CsQuery.ExtensionMethods.Internal;
 using HtmlAgilityPack;
 
 namespace PageObjectCreator
@@ -88,58 +89,135 @@ namespace PageObjectCreator
 
             try
             {
-                foreach (HtmlNode node in doc.DocumentNode.SelectNodes("//h1"))
+                if (doc.DocumentNode.SelectNodes("//h1").IsNullOrEmpty() == false)
                 {
-                    tagsList.Add("//h1[contains(text(),'" + node.ChildNodes[0].InnerHtml + "')]");
+                    foreach (HtmlNode node in doc.DocumentNode.SelectNodes("//h1"))
+                    {
+                        tagsList.Add("//h1[contains(text(),'" + node.ChildNodes[0].InnerHtml + "')]");
+                    }
                 }
-                foreach (HtmlNode node in doc.DocumentNode.SelectNodes("//h2"))
+
+                if (doc.DocumentNode.SelectNodes("//h2").IsNullOrEmpty() == false)
                 {
-                    tagsList.Add("//h2[contains(text(),'" + node.ChildNodes[0].InnerHtml + "')]");
+                    foreach (HtmlNode node in doc.DocumentNode.SelectNodes("//h2"))
+                    {
+                        tagsList.Add("//h2[contains(text(),'" + node.ChildNodes[0].InnerHtml + "')]");
+                    }
                 }
-                foreach (HtmlNode node in doc.DocumentNode.SelectNodes("//h3"))
+
+                if (doc.DocumentNode.SelectNodes("//h3").IsNullOrEmpty() == false)
                 {
-                    tagsList.Add("//h3[contains(text(),'" + node.ChildNodes[0].InnerHtml + "')]");
+                    foreach (HtmlNode node in doc.DocumentNode.SelectNodes("//h3"))
+                    {
+                        tagsList.Add("//h3[contains(text(),'" + node.ChildNodes[0].InnerHtml + "')]");
+                    }
                 }
-                foreach (HtmlNode node in doc.DocumentNode.SelectNodes("//li"))
+
+                if (doc.DocumentNode.SelectNodes("//h4").IsNullOrEmpty() == false)
                 {
-                    tagsList.Add(node.ChildNodes[0].InnerHtml);
+                    foreach (HtmlNode node in doc.DocumentNode.SelectNodes("//h4"))
+                    {
+                        tagsList.Add("//h4[contains(text(),'" + node.ChildNodes[0].InnerHtml + "')]");
+                    }
                 }
-                foreach (HtmlNode node in doc.DocumentNode.SelectNodes("//a"))
+
+                if (doc.DocumentNode.SelectNodes("//h5").IsNullOrEmpty() == false)
                 {
-                    tagsList.Add(node.ChildNodes[0].InnerHtml);
+                    foreach (HtmlNode node in doc.DocumentNode.SelectNodes("//h5"))
+                    {
+                        tagsList.Add("//h5[contains(text(),'" + node.ChildNodes[0].InnerHtml + "')]");
+                    }
                 }
-                foreach (HtmlNode node in doc.DocumentNode.SelectNodes("//img"))
+
+                if (doc.DocumentNode.SelectNodes("//h6").IsNullOrEmpty() == false)
                 {
-                    tagsList.Add(node.ChildNodes[0].InnerHtml);
+                    foreach (HtmlNode node in doc.DocumentNode.SelectNodes("//h6"))
+                    {
+                        tagsList.Add("//h6[contains(text(),'" + node.ChildNodes[0].InnerHtml + "')]");
+                    }
                 }
-                foreach (HtmlNode node in doc.DocumentNode.SelectNodes("//p"))
+
+                if (doc.DocumentNode.SelectNodes("//li").IsNullOrEmpty() == false)
                 {
-                    tagsList.Add(node.ChildNodes[0].InnerHtml);
+                    foreach (HtmlNode node in doc.DocumentNode.SelectNodes("//li"))
+                    {
+                        tagsList.Add("//li[contains(text(),'" + node.ChildNodes[0].InnerHtml + "')]");
+                    }
                 }
-                foreach (HtmlNode node in doc.DocumentNode.SelectNodes("//div[@id]"))
+
+                if (doc.DocumentNode.SelectNodes("//a").IsNullOrEmpty() == false)
                 {
-                    tagsList.Add(node.ChildNodes[0].InnerHtml);
+                    foreach (HtmlNode node in doc.DocumentNode.SelectNodes("//a"))
+                    {
+                        tagsList.Add("//a[contains(text(),'" + node.ChildNodes[0].InnerHtml + "')]");
+                    }
                 }
-                foreach (HtmlNode node in doc.DocumentNode.SelectNodes("//select"))
+
+                if (doc.DocumentNode.SelectNodes("//img").IsNullOrEmpty() == false)
                 {
-                    tagsList.Add(node.ChildNodes[0].InnerHtml);
+                    foreach (HtmlNode node in doc.DocumentNode.SelectNodes("//img"))
+                    {
+                        tagsList.Add(node.ChildNodes[0].InnerHtml);
+                    }
                 }
-                foreach (HtmlNode node in doc.DocumentNode.SelectNodes("//button"))
+
+                if (doc.DocumentNode.SelectNodes("//p").IsNullOrEmpty() == false)
                 {
-                    tagsList.Add(node.ChildNodes[0].InnerHtml);
+                    foreach (HtmlNode node in doc.DocumentNode.SelectNodes("//p"))
+                    {
+                        tagsList.Add(node.ChildNodes[0].InnerHtml);
+                    }
                 }
-                foreach (HtmlNode node in doc.DocumentNode.SelectNodes("//div[@class]"))
+
+                if (doc.DocumentNode.SelectNodes("//div[@id]").IsNullOrEmpty() == false)
                 {
-                    tagsList.Add(node.ChildNodes[0].InnerHtml);
+                    foreach (HtmlNode node in doc.DocumentNode.SelectNodes("//div[@id]"))
+                    {
+                        tagsList.Add(node.ChildNodes[0].InnerHtml);
+                    }
                 }
-                foreach (HtmlNode node in doc.DocumentNode.SelectNodes("//th"))
+
+
+                if (doc.DocumentNode.SelectNodes("//select").IsNullOrEmpty() == false)
                 {
-                    tagsList.Add(node.ChildNodes[0].InnerHtml);
+                    foreach (HtmlNode node in doc.DocumentNode.SelectNodes("//select"))
+                    {
+                        tagsList.Add(node.ChildNodes[0].InnerHtml);
+                    }
                 }
-                foreach (HtmlNode node in doc.DocumentNode.SelectNodes("//td"))
+
+                if (doc.DocumentNode.SelectNodes("//button").IsNullOrEmpty() == false)
                 {
-                    tagsList.Add(node.ChildNodes[0].InnerHtml);
+                    foreach (HtmlNode node in doc.DocumentNode.SelectNodes("//button"))
+                    {
+                        tagsList.Add(node.ChildNodes[0].InnerHtml);
+                    }
                 }
+
+                if (doc.DocumentNode.SelectNodes("////div[@class]").IsNullOrEmpty() == false)
+                {
+                    foreach (HtmlNode node in doc.DocumentNode.SelectNodes("//div[@class]"))
+                    {
+                        tagsList.Add(node.ChildNodes[0].InnerHtml);
+                    }
+                }
+
+                if (doc.DocumentNode.SelectNodes("//th").IsNullOrEmpty() == false)
+                {
+                    foreach (HtmlNode node in doc.DocumentNode.SelectNodes("//th"))
+                    {
+                        tagsList.Add(node.ChildNodes[0].InnerHtml);
+                    }
+                }
+
+                if (doc.DocumentNode.SelectNodes("//td").IsNullOrEmpty() == false)
+                {
+                    foreach (HtmlNode node in doc.DocumentNode.SelectNodes("//td"))
+                    {
+                        tagsList.Add(node.ChildNodes[0].InnerHtml);
+                    }
+                }
+
             }
             catch (Exception ex)
             {            
