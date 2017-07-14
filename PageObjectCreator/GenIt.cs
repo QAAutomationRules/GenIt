@@ -137,19 +137,110 @@ namespace PageObjectCreator
                     }
                 }
 
+                if (doc.DocumentNode.SelectNodes("//small").IsNullOrEmpty() == false)
+                {
+                    foreach (HtmlNode node in doc.DocumentNode.SelectNodes("//small"))
+                    {
+                        if (node.HasChildNodes == true)
+                        {
+                            if (node.ChildNodes[0].HasAttributes == false)
+                            {
+                                tagsList.Add("//" + node.ChildNodes[0].Name + "[contains(text(),'" +
+                                             node.ChildNodes[0].InnerHtml + "')]");
+                            }
+                            else if (node.ChildNodes[0].HasAttributes == true)
+                            {
+                                foreach (var attribute in node.ChildNodes[0].Attributes)
+                                {
+                                    if (attribute.Name == "id")
+                                    {
+                                        tagsList.Add("//" + node.ChildNodes[0].Name + "[@" + attribute.Name + "=" + "'" +
+                                                     attribute.Value + "']");
+                                    }
+                                    else if (attribute.Name == "class")
+                                    {
+                                        tagsList.Add("//" + node.ChildNodes[0].Name + "[@" + attribute.Name + "=" + "'" +
+                                                     attribute.Value + "']");
+                                    }
+                                }
+                            }
+                        }
+                        else
+                        {
+                            tagsList.Add("//small[contains(text(),'" + node.ChildNodes[0].InnerHtml + "')]");
+                        }
+
+                    }
+                }
+
                 if (doc.DocumentNode.SelectNodes("//li").IsNullOrEmpty() == false)
                 {
                     foreach (HtmlNode node in doc.DocumentNode.SelectNodes("//li"))
                     {
-                        tagsList.Add("//li[contains(text(),'" + node.ChildNodes[0].InnerHtml + "')]");
+                        if (node.HasChildNodes == false && node.HasAttributes == false)
+                        {
+                            tagsList.Add("//li[contains(text(),'" + node.ChildNodes[0].InnerHtml + "')]");
+                        }
+                        else if (node.HasChildNodes == true)
+                        {
+                            foreach (var attribute in node.ChildNodes[0].Attributes)
+                            {
+                                if (attribute.Name == "id")
+                                {
+                                    tagsList.Add("//" + node.ChildNodes[0].Name + "[@" + attribute.Name + "=" + "'" +
+                                                 attribute.Value + "']");
+                                }
+                                else if (attribute.Name == "class")
+                                {
+                                    tagsList.Add("//" + node.ChildNodes[0].Name + "[@" + attribute.Name + "=" + "'" +
+                                                 attribute.Value + "']");
+                                }
+                            }
+                        }
+                        else if (node.HasAttributes == true)
+                        {
+                            foreach (var attribute in node.Attributes)
+                            {
+                                if (attribute.Name == "id")
+                                {
+                                    tagsList.Add("//li[@id='" + attribute.Value + "')]");
+                                }
+                            }
+                        }
+                        
                     }
                 }
 
                 if (doc.DocumentNode.SelectNodes("//a").IsNullOrEmpty() == false)
                 {
+
                     foreach (HtmlNode node in doc.DocumentNode.SelectNodes("//a"))
                     {
-                        tagsList.Add("//a[contains(text(),'" + node.ChildNodes[0].InnerHtml + "')]");
+                        if (node.HasChildNodes == false && node.HasAttributes == false)
+                        {
+                            tagsList.Add("//a[contains(text(),'" + node.ChildNodes[0].InnerHtml + "')]");
+                        }
+                        else
+                        {
+                            foreach (var attribute in node.ChildNodes[0].Attributes)
+                            {
+                                if (attribute.Name == "id")
+                                {
+                                    tagsList.Add("//" + node.ChildNodes[0].Name + "[@" + attribute.Name + "=" + "'" +
+                                                 attribute.Value + "']");
+                                }
+                                else if (attribute.Name == "class")
+                                {
+                                    tagsList.Add("//" + node.ChildNodes[0].Name + "[@" + attribute.Name + "=" + "'" +
+                                                 attribute.Value + "']");
+                                }
+                                else if (attribute.Name == "href")
+                                {
+                                    tagsList.Add("//" + node.ChildNodes[0].Name + "[@" + attribute.Name + "=" + "'" +
+                                                 attribute.Value + "']");
+                                }
+                            }
+                        }
                     }
                 }
 
@@ -194,7 +285,7 @@ namespace PageObjectCreator
                     }
                 }
 
-                if (doc.DocumentNode.SelectNodes("////div[@class]").IsNullOrEmpty() == false)
+                if (doc.DocumentNode.SelectNodes("//div[@class]").IsNullOrEmpty() == false)
                 {
                     foreach (HtmlNode node in doc.DocumentNode.SelectNodes("//div[@class]"))
                     {
