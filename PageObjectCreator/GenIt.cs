@@ -1,5 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Configuration;
+using System.Linq;
 using System.Net;
 using System.Windows.Forms;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
@@ -24,7 +26,7 @@ namespace PageObjectCreator
             crawler.PageCrawlDisallowedAsync += crawler_PageCrawlDisallowed;
             crawler.PageLinksCrawlDisallowedAsync += crawler_PageLinksCrawlDisallowed;
 
-            CrawlResult result = crawler.Crawl(new Uri("https://www.mysmartmove.com/"));
+            CrawlResult result = crawler.Crawl(new Uri(ConfigurationManager.AppSettings["HomePageURL"]));
 
             int count = result.CrawlContext.CrawledCount;
 
@@ -32,7 +34,8 @@ namespace PageObjectCreator
 
             Console.WriteLine(result.ToJSON());
 
-            foreach (var tag in GetPageElements())
+            //get all distinct xpaths
+            foreach (var tag in GetPageElements().Distinct())
             {
                 Console.WriteLine(tag);
             }
@@ -81,7 +84,7 @@ namespace PageObjectCreator
         {
             List<string> tagsList = new List<string>();
 
-            string url = "https://www.mysmartmove.com/";
+            string url = ConfigurationManager.AppSettings["HomePageURL"];
 
             var Webget = new HtmlWeb();
 
@@ -93,7 +96,7 @@ namespace PageObjectCreator
                 {
                     foreach (HtmlNode node in doc.DocumentNode.SelectNodes("//h1"))
                     {
-                        tagsList.Add("//h1[contains(text(),'" + node.ChildNodes[0].InnerHtml + "')]");
+                        tagsList.Add("//h1[contains(text(),'" + node.ChildNodes[0].InnerHtml.Trim() + "')]");
                     }
                 }
 
@@ -101,7 +104,7 @@ namespace PageObjectCreator
                 {
                     foreach (HtmlNode node in doc.DocumentNode.SelectNodes("//h2"))
                     {
-                        tagsList.Add("//h2[contains(text(),'" + node.ChildNodes[0].InnerHtml + "')]");
+                        tagsList.Add("//h2[contains(text(),'" + node.ChildNodes[0].InnerHtml.Trim() + "')]");
                     }
                 }
 
@@ -109,7 +112,7 @@ namespace PageObjectCreator
                 {
                     foreach (HtmlNode node in doc.DocumentNode.SelectNodes("//h3"))
                     {
-                        tagsList.Add("//h3[contains(text(),'" + node.ChildNodes[0].InnerHtml + "')]");
+                        tagsList.Add("//h3[contains(text(),'" + node.ChildNodes[0].InnerHtml.Trim() + "')]");
                     }
                 }
 
@@ -117,7 +120,7 @@ namespace PageObjectCreator
                 {
                     foreach (HtmlNode node in doc.DocumentNode.SelectNodes("//h4"))
                     {
-                        tagsList.Add("//h4[contains(text(),'" + node.ChildNodes[0].InnerHtml + "')]");
+                        tagsList.Add("//h4[contains(text(),'" + node.ChildNodes[0].InnerHtml.Trim() + "')]");
                     }
                 }
 
@@ -125,7 +128,7 @@ namespace PageObjectCreator
                 {
                     foreach (HtmlNode node in doc.DocumentNode.SelectNodes("//h5"))
                     {
-                        tagsList.Add("//h5[contains(text(),'" + node.ChildNodes[0].InnerHtml + "')]");
+                        tagsList.Add("//h5[contains(text(),'" + node.ChildNodes[0].InnerHtml.Trim() + "')]");
                     }
                 }
 
@@ -133,7 +136,7 @@ namespace PageObjectCreator
                 {
                     foreach (HtmlNode node in doc.DocumentNode.SelectNodes("//h6"))
                     {
-                        tagsList.Add("//h6[contains(text(),'" + node.ChildNodes[0].InnerHtml + "')]");
+                        tagsList.Add("//h6[contains(text(),'" + node.ChildNodes[0].InnerHtml.Trim() + "')]");
                     }
                 }
 
@@ -141,105 +144,68 @@ namespace PageObjectCreator
                 {
                     foreach (HtmlNode node in doc.DocumentNode.SelectNodes("//small"))
                     {
-                        if (node.HasChildNodes == true)
-                        {
-                            if (node.ChildNodes[0].HasAttributes == false)
-                            {
-                                tagsList.Add("//" + node.ChildNodes[0].Name + "[contains(text(),'" +
-                                             node.ChildNodes[0].InnerHtml + "')]");
-                            }
-                            else if (node.ChildNodes[0].HasAttributes == true)
-                            {
-                                foreach (var attribute in node.ChildNodes[0].Attributes)
-                                {
-                                    if (attribute.Name == "id")
-                                    {
-                                        tagsList.Add("//" + node.ChildNodes[0].Name + "[@" + attribute.Name + "=" + "'" +
-                                                     attribute.Value + "']");
-                                    }
-                                    else if (attribute.Name == "class")
-                                    {
-                                        tagsList.Add("//" + node.ChildNodes[0].Name + "[@" + attribute.Name + "=" + "'" +
-                                                     attribute.Value + "']");
-                                    }
-                                }
-                            }
-                        }
-                        else
-                        {
-                            tagsList.Add("//small[contains(text(),'" + node.ChildNodes[0].InnerHtml + "')]");
-                        }
-
-                    }
-                }
-
-                if (doc.DocumentNode.SelectNodes("//li").IsNullOrEmpty() == false)
-                {
-                    foreach (HtmlNode node in doc.DocumentNode.SelectNodes("//li"))
-                    {
-                        if (node.HasChildNodes == false && node.HasAttributes == false)
-                        {
-                            tagsList.Add("//li[contains(text(),'" + node.ChildNodes[0].InnerHtml + "')]");
-                        }
-                        else if (node.HasChildNodes == true)
-                        {
-                            foreach (var attribute in node.ChildNodes[0].Attributes)
-                            {
-                                if (attribute.Name == "id")
-                                {
-                                    tagsList.Add("//" + node.ChildNodes[0].Name + "[@" + attribute.Name + "=" + "'" +
-                                                 attribute.Value + "']");
-                                }
-                                else if (attribute.Name == "class")
-                                {
-                                    tagsList.Add("//" + node.ChildNodes[0].Name + "[@" + attribute.Name + "=" + "'" +
-                                                 attribute.Value + "']");
-                                }
-                            }
-                        }
-                        else if (node.HasAttributes == true)
+                        if (node.HasAttributes == true)
                         {
                             foreach (var attribute in node.Attributes)
                             {
-                                if (attribute.Name == "id")
+                                if (attribute.Name.Contains("id"))
                                 {
-                                    tagsList.Add("//li[@id='" + attribute.Value + "')]");
+                                    tagsList.Add("//small[@" + attribute.Name + "=" + "'" +
+                                                 attribute.Value + "']");
+                                }
+                                else if (attribute.Name.Contains("class"))
+                                {
+                                    tagsList.Add("//small[@" + attribute.Name + "=" + "'" +
+                                                 attribute.Value + "']");
+                                }
+                                else if (attribute.Name.Contains("href"))
+                                {
+                                    tagsList.Add("//small[@" + attribute.Name + "=" + "'" +
+                                                 attribute.Value + "']");
                                 }
                             }
                         }
-                        
+                        else if (node.HasAttributes == false)
+                        {
+                            tagsList.Add("//small[contains(text(),'" + node.ChildNodes[0].InnerHtml.Trim() + "')]");
+                        }
+
                     }
                 }
 
                 if (doc.DocumentNode.SelectNodes("//a").IsNullOrEmpty() == false)
                 {
-
                     foreach (HtmlNode node in doc.DocumentNode.SelectNodes("//a"))
                     {
-                        if (node.HasChildNodes == false && node.HasAttributes == false)
+                        if (node.HasAttributes == true)
                         {
-                            tagsList.Add("//a[contains(text(),'" + node.ChildNodes[0].InnerHtml + "')]");
-                        }
-                        else
-                        {
-                            foreach (var attribute in node.ChildNodes[0].Attributes)
+                            foreach (var attribute in node.Attributes)
                             {
-                                if (attribute.Name == "id")
+                                if (attribute.Name.Contains("id"))
                                 {
-                                    tagsList.Add("//" + node.ChildNodes[0].Name + "[@" + attribute.Name + "=" + "'" +
+                                    tagsList.Add("//a[@" + attribute.Name + "=" + "'" +
                                                  attribute.Value + "']");
                                 }
-                                else if (attribute.Name == "class")
+                                else if (attribute.Name.Contains("class"))
                                 {
-                                    tagsList.Add("//" + node.ChildNodes[0].Name + "[@" + attribute.Name + "=" + "'" +
+                                    tagsList.Add("//a[@" + attribute.Name + "=" + "'" +
                                                  attribute.Value + "']");
                                 }
-                                else if (attribute.Name == "href")
+                                else if (attribute.Name.Contains("alt"))
                                 {
-                                    tagsList.Add("//" + node.ChildNodes[0].Name + "[@" + attribute.Name + "=" + "'" +
+                                    tagsList.Add("//a[@" + attribute.Name + "=" + "'" +
+                                                 attribute.Value + "']");
+                                }
+                                else if (attribute.Name.Contains("href"))
+                                {
+                                    tagsList.Add("//a[@" + attribute.Name + "=" + "'" +
                                                  attribute.Value + "']");
                                 }
                             }
+                        }
+                        else if (node.HasAttributes == false)
+                        {
+                            tagsList.Add("//a[contains(text(),'" + node.ChildNodes[0].InnerHtml.Trim() + "')]");
                         }
                     }
                 }
@@ -248,15 +214,68 @@ namespace PageObjectCreator
                 {
                     foreach (HtmlNode node in doc.DocumentNode.SelectNodes("//img"))
                     {
-                        tagsList.Add(node.ChildNodes[0].InnerHtml);
+                        if (node.HasAttributes == true)
+                        {
+                            foreach (var attribute in node.Attributes)
+                            {
+                                if (attribute.Name.Contains("id"))
+                                {
+                                    tagsList.Add("//img[@" + attribute.Name + "=" + "'" +
+                                                 attribute.Value + "']");
+                                }
+                                else if (attribute.Name.Contains("class"))
+                                {
+                                    tagsList.Add("//img[@" + attribute.Name + "=" + "'" +
+                                                 attribute.Value + "']");
+                                }
+                                else if (attribute.Name.Contains("href"))
+                                {
+                                    tagsList.Add("//img[@" + attribute.Name + "=" + "'" +
+                                                 attribute.Value + "']");
+                                }
+                            }
+                        }
+                        else if (node.HasAttributes == false)
+                        {
+                            tagsList.Add("//img[contains(text(),'" + node.ChildNodes[0].InnerHtml.Trim() + "')]");
+                        }
                     }
+
                 }
+   
 
                 if (doc.DocumentNode.SelectNodes("//p").IsNullOrEmpty() == false)
                 {
                     foreach (HtmlNode node in doc.DocumentNode.SelectNodes("//p"))
                     {
-                        tagsList.Add(node.ChildNodes[0].InnerHtml);
+                        if (node.HasChildNodes == true)
+                        {
+                            if (node.HasAttributes == true)
+                            {
+                                foreach (var attribute in node.Attributes)
+                                {
+                                    if (attribute.Name.Contains("id"))
+                                    {
+                                        tagsList.Add("//p[@" + attribute.Name + "=" + "'" +
+                                                     attribute.Value + "']");
+                                    }
+                                    else if (attribute.Name.Contains("class"))
+                                    {
+                                        tagsList.Add("//p[@" + attribute.Name + "=" + "'" +
+                                                     attribute.Value + "']");
+                                    }
+                                    else if (attribute.Name.Contains("href"))
+                                    {
+                                        tagsList.Add("//p[@" + attribute.Name + "=" + "'" +
+                                                     attribute.Value + "']");
+                                    }
+                                }
+                            }
+                            else if (node.HasAttributes == false)
+                            {
+                                tagsList.Add("//p[contains(text(),'" + node.ChildNodes[0].InnerHtml.Trim() + "')]");
+                            }
+                        }
                     }
                 }
 
@@ -264,7 +283,27 @@ namespace PageObjectCreator
                 {
                     foreach (HtmlNode node in doc.DocumentNode.SelectNodes("//div[@id]"))
                     {
-                        tagsList.Add(node.ChildNodes[0].InnerHtml);
+                        foreach (var attribute in node.Attributes)
+                        {
+                            if (attribute.Name == "id")
+                            {
+                                tagsList.Add("//div[@id=" + "'" + attribute.Value + "']");
+                            }
+                        }
+                    }
+                }
+
+                if (doc.DocumentNode.SelectNodes("//div[@class]").IsNullOrEmpty() == false)
+                {
+                    foreach (HtmlNode node in doc.DocumentNode.SelectNodes("//div[@class]"))
+                    {
+                        foreach (var attribute in node.Attributes)
+                        {
+                            if (attribute.Name.Contains("id") == false && attribute.Name == "class")
+                            {
+                                tagsList.Add("//div[@class=" + "'" + attribute.Value + "']");
+                            }
+                        }
                     }
                 }
 
@@ -273,7 +312,32 @@ namespace PageObjectCreator
                 {
                     foreach (HtmlNode node in doc.DocumentNode.SelectNodes("//select"))
                     {
-                        tagsList.Add(node.ChildNodes[0].InnerHtml);
+                        if (node.HasAttributes == true)
+                        {
+                            foreach (var attribute in node.Attributes)
+                            {
+                                if (attribute.Name.Contains("id"))
+                                {
+                                    tagsList.Add("//select[@" + attribute.Name + "=" + "'" +
+                                                 attribute.Value + "']");
+                                }
+                                else if (attribute.Name.Contains("class"))
+                                {
+                                    tagsList.Add("//select[@" + attribute.Name + "=" + "'" +
+                                                 attribute.Value + "']");
+                                }
+                                else if (attribute.Name.Contains("href"))
+                                {
+                                    tagsList.Add("//select[@" + attribute.Name + "=" + "'" +
+                                                 attribute.Value + "']");
+                                }
+                            }
+                        }
+                        else if (node.HasAttributes == false)
+                        {
+                            tagsList.Add("//select[contains(text(),'" + node.ChildNodes[0].InnerHtml.Trim() + "')]");
+                        }
+
                     }
                 }
 
@@ -281,35 +345,37 @@ namespace PageObjectCreator
                 {
                     foreach (HtmlNode node in doc.DocumentNode.SelectNodes("//button"))
                     {
-                        tagsList.Add(node.ChildNodes[0].InnerHtml);
-                    }
-                }
+                        if (node.HasAttributes == true)
+                        {
+                            foreach (var attribute in node.Attributes)
+                            {
+                                if (attribute.Name.Contains("id"))
+                                {
+                                    tagsList.Add("//button[@" + attribute.Name + "=" + "'" +
+                                                 attribute.Value + "']");
+                                }
+                                else if (attribute.Name.Contains("class"))
+                                {
+                                    tagsList.Add("//button[@" + attribute.Name + "=" + "'" +
+                                                 attribute.Value + "']");
+                                }
+                                else if (attribute.Name.Contains("href"))
+                                {
+                                    tagsList.Add("//button[@" + attribute.Name + "=" + "'" +
+                                                 attribute.Value + "']");
+                                }
+                            }
+                        }
+                        else if (node.HasAttributes == false)
+                        {
+                            tagsList.Add("//button[contains(text(),'" + node.ChildNodes[0].InnerHtml.Trim() + "')]");
+                        }
 
-                if (doc.DocumentNode.SelectNodes("//div[@class]").IsNullOrEmpty() == false)
-                {
-                    foreach (HtmlNode node in doc.DocumentNode.SelectNodes("//div[@class]"))
-                    {
-                        tagsList.Add(node.ChildNodes[0].InnerHtml);
-                    }
-                }
-
-                if (doc.DocumentNode.SelectNodes("//th").IsNullOrEmpty() == false)
-                {
-                    foreach (HtmlNode node in doc.DocumentNode.SelectNodes("//th"))
-                    {
-                        tagsList.Add(node.ChildNodes[0].InnerHtml);
-                    }
-                }
-
-                if (doc.DocumentNode.SelectNodes("//td").IsNullOrEmpty() == false)
-                {
-                    foreach (HtmlNode node in doc.DocumentNode.SelectNodes("//td"))
-                    {
-                        tagsList.Add(node.ChildNodes[0].InnerHtml);
                     }
                 }
 
             }
+        
             catch (Exception ex)
             {            
                 Console.WriteLine(ex.Message);
