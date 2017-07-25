@@ -12,6 +12,7 @@ using CsQuery.ExtensionMethods;
 using CsQuery.ExtensionMethods.Internal;
 using HtmlAgilityPack;
 using System.IO;
+using System.Text;
 
 namespace PageObjectCreator
 {
@@ -38,6 +39,7 @@ namespace PageObjectCreator
             Console.WriteLine(result.CrawlContext.ToJSON());
 
             Console.WriteLine(result.ToJSON());
+            Console.WriteLine("Total Crawled Page Count = " + count);
 
         }
 
@@ -59,19 +61,26 @@ namespace PageObjectCreator
             else
             {
                 Console.WriteLine("Crawl of page succeeded {0}", crawledPage.Uri.AbsoluteUri);
-
+                Console.WriteLine("Crawl of page succeeded {0}", crawledPage.Uri.AbsoluteUri);
                 if (ConfigurationManager.AppSettings["PageObjectType"] == "PageFactory")
                 {
+
+                    string pageName = crawledPage.Uri.AbsoluteUri.Remove(crawledPage.Uri.AbsoluteUri.Length -
+                                                                         crawledPage.Uri.Segments.Last().Length);
+                    pageName = pageName.Replace("http://", string.Empty);
+                    pageName = pageName.RegexReplace("[^a-zA-Z0-9]", "");
+                    pageName = pageName.ToUpperInvariant();
+
                     //need to create Page Objects by the pages that were successfully crawled
-                    WritePageFactoryPageObject(GetPageElements(crawledPage.Uri.AbsoluteUri), 
-                        crawledPage.Uri.AbsoluteUri.Remove(crawledPage.Uri.AbsoluteUri.Length - crawledPage.Uri.Segments.Last().Length)
-                        .RegexReplace(@"[^0-9a-zA-Z]+"," ")
-                        .ToUpperInvariant());
+                    WritePageFactoryPageObject(GetPageElements(crawledPage.Uri.AbsoluteUri),
+                        pageName);
 
                 }
                 else if (ConfigurationManager.AppSettings["PageObjectType"] == "PageObjectGeneral")
                 {
-
+                    // need to create Page Objects by the pages that were successfully crawled
+                    WriteGeneralPageObject(GetPageElements(crawledPage.Uri.AbsoluteUri), crawledPage.Uri.AbsoluteUri.Remove(crawledPage.Uri.AbsoluteUri.Length -
+                                                           crawledPage.Uri.Segments.Last().Length));
                 }
                 Console.WriteLine(crawledPage.Uri.AbsoluteUri);
             }
@@ -99,7 +108,7 @@ namespace PageObjectCreator
         }
 
 
-        public Dictionary<string,string> GetPageElements(string crawledPageUrl)
+        public Dictionary<string, string> GetPageElements(string crawledPageUrl)
         {
             Dictionary<string, string> elementKeyValuePair = new Dictionary<string, string>();
 
@@ -115,7 +124,9 @@ namespace PageObjectCreator
                 {
                     foreach (HtmlNode node in doc.DocumentNode.SelectNodes("//h1"))
                     {
-                        elementKeyValuePair.Add("H1Text" + Guid.NewGuid().ToString("N"),"//h1[contains(text(),'" + node.ChildNodes[0].InnerHtml.Trim().RegexReplace(@"[^0-9a-zA-Z]+", "") + "')]");
+                        elementKeyValuePair.Add("H1Text" + Guid.NewGuid().ToString("N"),
+                            "//h1[contains(text(),'" +
+                            node.ChildNodes[0].InnerHtml.Trim().RegexReplace(@"[^0-9a-zA-Z]+", "") + "')]");
                     }
                 }
 
@@ -123,7 +134,8 @@ namespace PageObjectCreator
                 {
                     foreach (HtmlNode node in doc.DocumentNode.SelectNodes("//h2"))
                     {
-                        elementKeyValuePair.Add("H2Text" + Guid.NewGuid().ToString("N"), "//h2[contains(text(),'" + node.ChildNodes[0].InnerHtml.Trim() + "')]");
+                        elementKeyValuePair.Add("H2Text" + Guid.NewGuid().ToString("N"),
+                            "//h2[contains(text(),'" + node.ChildNodes[0].InnerHtml.Trim() + "')]");
                     }
                 }
 
@@ -131,7 +143,8 @@ namespace PageObjectCreator
                 {
                     foreach (HtmlNode node in doc.DocumentNode.SelectNodes("//h3"))
                     {
-                        elementKeyValuePair.Add("H3Text" + Guid.NewGuid().ToString("N"), "//h3[contains(text(),'" + node.ChildNodes[0].InnerHtml.Trim() + "')]");
+                        elementKeyValuePair.Add("H3Text" + Guid.NewGuid().ToString("N"),
+                            "//h3[contains(text(),'" + node.ChildNodes[0].InnerHtml.Trim() + "')]");
                     }
                 }
 
@@ -139,7 +152,8 @@ namespace PageObjectCreator
                 {
                     foreach (HtmlNode node in doc.DocumentNode.SelectNodes("//h4"))
                     {
-                        elementKeyValuePair.Add("H4Text" + Guid.NewGuid().ToString("N"), "//h4[contains(text(),'" + node.ChildNodes[0].InnerHtml.Trim() + "')]");
+                        elementKeyValuePair.Add("H4Text" + Guid.NewGuid().ToString("N"),
+                            "//h4[contains(text(),'" + node.ChildNodes[0].InnerHtml.Trim() + "')]");
                     }
                 }
 
@@ -147,7 +161,8 @@ namespace PageObjectCreator
                 {
                     foreach (HtmlNode node in doc.DocumentNode.SelectNodes("//h5"))
                     {
-                        elementKeyValuePair.Add("H5Text" + Guid.NewGuid().ToString("N"), "//h5[contains(text(),'" + node.ChildNodes[0].InnerHtml.Trim() + "')]");
+                        elementKeyValuePair.Add("H5Text" + Guid.NewGuid().ToString("N"),
+                            "//h5[contains(text(),'" + node.ChildNodes[0].InnerHtml.Trim() + "')]");
                     }
                 }
 
@@ -155,7 +170,8 @@ namespace PageObjectCreator
                 {
                     foreach (HtmlNode node in doc.DocumentNode.SelectNodes("//h6"))
                     {
-                        elementKeyValuePair.Add("H6Text" + Guid.NewGuid().ToString("N"), "//h6[contains(text(),'" + node.ChildNodes[0].InnerHtml.Trim() + "')]");
+                        elementKeyValuePair.Add("H6Text" + Guid.NewGuid().ToString("N"),
+                            "//h6[contains(text(),'" + node.ChildNodes[0].InnerHtml.Trim() + "')]");
                     }
                 }
 
@@ -169,24 +185,28 @@ namespace PageObjectCreator
                             {
                                 if (attribute.Name.Contains("id"))
                                 {
-                                    elementKeyValuePair.Add("Small" + Guid.NewGuid().ToString("N"), "//small[@" + attribute.Name + "=" + "'" +
-                                                 attribute.Value + "']");
+                                    elementKeyValuePair.Add("Small" + Guid.NewGuid().ToString("N"),
+                                        "//small[@" + attribute.Name + "=" + "'" +
+                                        attribute.Value + "']");
                                 }
                                 else if (attribute.Name.Contains("class"))
                                 {
-                                    elementKeyValuePair.Add("Small" + Guid.NewGuid().ToString("N"), "//small[@" + attribute.Name + "=" + "'" +
-                                                 attribute.Value + "']");
+                                    elementKeyValuePair.Add("Small" + Guid.NewGuid().ToString("N"),
+                                        "//small[@" + attribute.Name + "=" + "'" +
+                                        attribute.Value + "']");
                                 }
                                 else if (attribute.Name.Contains("href"))
                                 {
-                                    elementKeyValuePair.Add("Small" + Guid.NewGuid().ToString("N"), "//small[@" + attribute.Name + "=" + "'" +
-                                                 attribute.Value + "']");
+                                    elementKeyValuePair.Add("Small" + Guid.NewGuid().ToString("N"),
+                                        "//small[@" + attribute.Name + "=" + "'" +
+                                        attribute.Value + "']");
                                 }
                             }
                         }
                         else if (node.HasAttributes == false)
                         {
-                            elementKeyValuePair.Add("Small" + Guid.NewGuid().ToString("N"), "//small[contains(text(),'" + node.ChildNodes[0].InnerHtml.Trim() + "')]");
+                            elementKeyValuePair.Add("Small" + Guid.NewGuid().ToString("N"),
+                                "//small[contains(text(),'" + node.ChildNodes[0].InnerHtml.Trim() + "')]");
                         }
 
                     }
@@ -202,29 +222,34 @@ namespace PageObjectCreator
                             {
                                 if (attribute.Name.Contains("id"))
                                 {
-                                    elementKeyValuePair.Add("ALink" + Guid.NewGuid().ToString("N"), "//a[@" + attribute.Name + "=" + "'" +
-                                                 attribute.Value + "']");
+                                    elementKeyValuePair.Add("ALink" + Guid.NewGuid().ToString("N"),
+                                        "//a[@" + attribute.Name + "=" + "'" +
+                                        attribute.Value + "']");
                                 }
                                 else if (attribute.Name.Contains("class"))
                                 {
-                                    elementKeyValuePair.Add("ALink" + Guid.NewGuid().ToString("N"), "//a[@" + attribute.Name + "=" + "'" +
-                                                 attribute.Value + "']");
+                                    elementKeyValuePair.Add("ALink" + Guid.NewGuid().ToString("N"),
+                                        "//a[@" + attribute.Name + "=" + "'" +
+                                        attribute.Value + "']");
                                 }
                                 else if (attribute.Name.Contains("alt"))
                                 {
-                                    elementKeyValuePair.Add("ALink" + Guid.NewGuid().ToString("N"), "//a[@" + attribute.Name + "=" + "'" +
-                                                 attribute.Value + "']");
+                                    elementKeyValuePair.Add("ALink" + Guid.NewGuid().ToString("N"),
+                                        "//a[@" + attribute.Name + "=" + "'" +
+                                        attribute.Value + "']");
                                 }
                                 else if (attribute.Name.Contains("href"))
                                 {
-                                    elementKeyValuePair.Add("ALink" + Guid.NewGuid().ToString("N"), "//a[@" + attribute.Name + "=" + "'" +
-                                                 attribute.Value + "']");
+                                    elementKeyValuePair.Add("ALink" + Guid.NewGuid().ToString("N"),
+                                        "//a[@" + attribute.Name + "=" + "'" +
+                                        attribute.Value + "']");
                                 }
                             }
                         }
                         else if (node.HasAttributes == false)
                         {
-                            elementKeyValuePair.Add("ALink" + Guid.NewGuid().ToString("N"), "//a[contains(text(),'" + node.ChildNodes[0].InnerHtml.Trim() + "')]");
+                            elementKeyValuePair.Add("ALink" + Guid.NewGuid().ToString("N"),
+                                "//a[contains(text(),'" + node.ChildNodes[0].InnerHtml.Trim() + "')]");
                         }
                     }
                 }
@@ -239,24 +264,28 @@ namespace PageObjectCreator
                             {
                                 if (attribute.Name.Contains("id"))
                                 {
-                                    elementKeyValuePair.Add("Image" + Guid.NewGuid().ToString("N"), "//img[@" + attribute.Name + "=" + "'" +
-                                                 attribute.Value + "']");
+                                    elementKeyValuePair.Add("Image" + Guid.NewGuid().ToString("N"),
+                                        "//img[@" + attribute.Name + "=" + "'" +
+                                        attribute.Value + "']");
                                 }
                                 else if (attribute.Name.Contains("class"))
                                 {
-                                    elementKeyValuePair.Add("Image" + Guid.NewGuid().ToString("N"), "//img[@" + attribute.Name + "=" + "'" +
-                                                 attribute.Value + "']");
+                                    elementKeyValuePair.Add("Image" + Guid.NewGuid().ToString("N"),
+                                        "//img[@" + attribute.Name + "=" + "'" +
+                                        attribute.Value + "']");
                                 }
                                 else if (attribute.Name.Contains("href"))
                                 {
-                                    elementKeyValuePair.Add("Image" + Guid.NewGuid().ToString("N"), "//img[@" + attribute.Name + "=" + "'" +
-                                                 attribute.Value + "']");
+                                    elementKeyValuePair.Add("Image" + Guid.NewGuid().ToString("N"),
+                                        "//img[@" + attribute.Name + "=" + "'" +
+                                        attribute.Value + "']");
                                 }
                             }
                         }
                         else if (node.HasAttributes == false)
                         {
-                            elementKeyValuePair.Add("Image" + Guid.NewGuid().ToString("N"), "//img[contains(text(),'" + node.ChildNodes[0].InnerHtml.Trim() + "')]");
+                            elementKeyValuePair.Add("Image" + Guid.NewGuid().ToString("N"),
+                                "//img[contains(text(),'" + node.ChildNodes[0].InnerHtml.Trim() + "')]");
                         }
                     }
 
@@ -275,24 +304,28 @@ namespace PageObjectCreator
                                 {
                                     if (attribute.Name.Contains("id"))
                                     {
-                                        elementKeyValuePair.Add("PText" + Guid.NewGuid().ToString("N"), "//p[@" + attribute.Name + "=" + "'" +
-                                                     attribute.Value + "']");
+                                        elementKeyValuePair.Add("PText" + Guid.NewGuid().ToString("N"),
+                                            "//p[@" + attribute.Name + "=" + "'" +
+                                            attribute.Value + "']");
                                     }
                                     else if (attribute.Name.Contains("class"))
                                     {
-                                        elementKeyValuePair.Add("PText" + Guid.NewGuid().ToString("N"), "//p[@" + attribute.Name + "=" + "'" +
-                                                     attribute.Value + "']");
+                                        elementKeyValuePair.Add("PText" + Guid.NewGuid().ToString("N"),
+                                            "//p[@" + attribute.Name + "=" + "'" +
+                                            attribute.Value + "']");
                                     }
                                     else if (attribute.Name.Contains("href"))
                                     {
-                                        elementKeyValuePair.Add("PText" + Guid.NewGuid().ToString("N"), "//p[@" + attribute.Name + "=" + "'" +
-                                                     attribute.Value + "']");
+                                        elementKeyValuePair.Add("PText" + Guid.NewGuid().ToString("N"),
+                                            "//p[@" + attribute.Name + "=" + "'" +
+                                            attribute.Value + "']");
                                     }
                                 }
                             }
                             else if (node.HasAttributes == false)
                             {
-                                elementKeyValuePair.Add("PText" + Guid.NewGuid().ToString("N"), "//p[contains(text(),'" + node.ChildNodes[0].InnerHtml.Trim() + "')]");
+                                elementKeyValuePair.Add("PText" + Guid.NewGuid().ToString("N"),
+                                    "//p[contains(text(),'" + node.ChildNodes[0].InnerHtml.Trim() + "')]");
                             }
                         }
                     }
@@ -306,7 +339,8 @@ namespace PageObjectCreator
                         {
                             if (attribute.Name == "id")
                             {
-                                elementKeyValuePair.Add("DivSection" + Guid.NewGuid().ToString("N"), "//div[@id=" + "'" + attribute.Value + "']");
+                                elementKeyValuePair.Add("DivSection" + Guid.NewGuid().ToString("N"),
+                                    "//div[@id=" + "'" + attribute.Value + "']");
                             }
                         }
                     }
@@ -320,7 +354,8 @@ namespace PageObjectCreator
                         {
                             if (attribute.Name.Contains("id") == false && attribute.Name == "class")
                             {
-                                elementKeyValuePair.Add("DivClass" + Guid.NewGuid().ToString("N"), "//div[@class=" + "'" + attribute.Value + "']");
+                                elementKeyValuePair.Add("DivClass" + Guid.NewGuid().ToString("N"),
+                                    "//div[@class=" + "'" + attribute.Value + "']");
                             }
                         }
                     }
@@ -337,24 +372,28 @@ namespace PageObjectCreator
                             {
                                 if (attribute.Name.Contains("id"))
                                 {
-                                    elementKeyValuePair.Add("DropDown" + Guid.NewGuid().ToString("N"), "//select[@" + attribute.Name + "=" + "'" +
-                                                 attribute.Value + "']");
+                                    elementKeyValuePair.Add("DropDown" + Guid.NewGuid().ToString("N"),
+                                        "//select[@" + attribute.Name + "=" + "'" +
+                                        attribute.Value + "']");
                                 }
                                 else if (attribute.Name.Contains("class"))
                                 {
-                                    elementKeyValuePair.Add("DropDown" + Guid.NewGuid().ToString("N"), "//select[@" + attribute.Name + "=" + "'" +
-                                                 attribute.Value + "']");
+                                    elementKeyValuePair.Add("DropDown" + Guid.NewGuid().ToString("N"),
+                                        "//select[@" + attribute.Name + "=" + "'" +
+                                        attribute.Value + "']");
                                 }
                                 else if (attribute.Name.Contains("href"))
                                 {
-                                    elementKeyValuePair.Add("DropDown" + Guid.NewGuid().ToString("N"), "//select[@" + attribute.Name + "=" + "'" +
-                                                 attribute.Value + "']");
+                                    elementKeyValuePair.Add("DropDown" + Guid.NewGuid().ToString("N"),
+                                        "//select[@" + attribute.Name + "=" + "'" +
+                                        attribute.Value + "']");
                                 }
                             }
                         }
                         else if (node.HasAttributes == false)
                         {
-                            elementKeyValuePair.Add("DropDown" + Guid.NewGuid().ToString("N"), "//select[contains(text(),'" + node.ChildNodes[0].InnerHtml.Trim() + "')]");
+                            elementKeyValuePair.Add("DropDown" + Guid.NewGuid().ToString("N"),
+                                "//select[contains(text(),'" + node.ChildNodes[0].InnerHtml.Trim() + "')]");
                         }
 
                     }
@@ -370,24 +409,28 @@ namespace PageObjectCreator
                             {
                                 if (attribute.Name.Contains("id"))
                                 {
-                                    elementKeyValuePair.Add("TextBox" + Guid.NewGuid().ToString("N"), "//input[@" + attribute.Name + "=" + "'" +
-                                                 attribute.Value + "']");
+                                    elementKeyValuePair.Add("TextBox" + Guid.NewGuid().ToString("N"),
+                                        "//input[@" + attribute.Name + "=" + "'" +
+                                        attribute.Value + "']");
                                 }
                                 else if (attribute.Name.Contains("class"))
                                 {
-                                    elementKeyValuePair.Add("TextBox" + Guid.NewGuid().ToString("N"), "//input[@" + attribute.Name + "=" + "'" +
-                                                 attribute.Value + "']");
+                                    elementKeyValuePair.Add("TextBox" + Guid.NewGuid().ToString("N"),
+                                        "//input[@" + attribute.Name + "=" + "'" +
+                                        attribute.Value + "']");
                                 }
                                 else if (attribute.Name.Contains("href"))
                                 {
-                                    elementKeyValuePair.Add("TextBox" + Guid.NewGuid().ToString("N"), "//input[@" + attribute.Name + "=" + "'" +
-                                                 attribute.Value + "']");
+                                    elementKeyValuePair.Add("TextBox" + Guid.NewGuid().ToString("N"),
+                                        "//input[@" + attribute.Name + "=" + "'" +
+                                        attribute.Value + "']");
                                 }
                             }
                         }
                         else if (node.HasAttributes == false)
                         {
-                            elementKeyValuePair.Add("TextBox" + Guid.NewGuid().ToString("N"), "//input[contains(text(),'" + node.ChildNodes[0].InnerHtml.Trim() + "')]");
+                            elementKeyValuePair.Add("TextBox" + Guid.NewGuid().ToString("N"),
+                                "//input[contains(text(),'" + node.ChildNodes[0].InnerHtml.Trim() + "')]");
                         }
 
                     }
@@ -403,24 +446,28 @@ namespace PageObjectCreator
                             {
                                 if (attribute.Name.Contains("id"))
                                 {
-                                    elementKeyValuePair.Add("Button" + Guid.NewGuid().ToString("N"), "//button[@" + attribute.Name + "=" + "'" +
-                                                 attribute.Value + "']");
+                                    elementKeyValuePair.Add("Button" + Guid.NewGuid().ToString("N"),
+                                        "//button[@" + attribute.Name + "=" + "'" +
+                                        attribute.Value + "']");
                                 }
                                 else if (attribute.Name.Contains("class"))
                                 {
-                                    elementKeyValuePair.Add("Button" + Guid.NewGuid().ToString("N"), "//button[@" + attribute.Name + "=" + "'" +
-                                                 attribute.Value + "']");
+                                    elementKeyValuePair.Add("Button" + Guid.NewGuid().ToString("N"),
+                                        "//button[@" + attribute.Name + "=" + "'" +
+                                        attribute.Value + "']");
                                 }
                                 else if (attribute.Name.Contains("href"))
                                 {
-                                    elementKeyValuePair.Add("Button" + Guid.NewGuid().ToString("N"), "//button[@" + attribute.Name + "=" + "'" +
-                                                 attribute.Value + "']");
+                                    elementKeyValuePair.Add("Button" + Guid.NewGuid().ToString("N"),
+                                        "//button[@" + attribute.Name + "=" + "'" +
+                                        attribute.Value + "']");
                                 }
                             }
                         }
                         else if (node.HasAttributes == false)
                         {
-                            elementKeyValuePair.Add("Button" + Guid.NewGuid().ToString("N"), "//button[contains(text(),'" + node.ChildNodes[0].InnerHtml.Trim() + "')]");
+                            elementKeyValuePair.Add("Button" + Guid.NewGuid().ToString("N"),
+                                "//button[contains(text(),'" + node.ChildNodes[0].InnerHtml.Trim() + "')]");
                         }
 
                     }
@@ -440,6 +487,32 @@ namespace PageObjectCreator
 
         public void WritePageFactoryPageObject(Dictionary<string, string> pageElements, string pageName)
         {
+
+            // Specify the directory you want to manipulate.
+            string path = @"C:\Generator Files\";
+
+            try
+            {
+                // Determine whether the directory exists.
+                if (Directory.Exists(path))
+                {
+                    Console.WriteLine("That path exists already.");
+
+                }
+                else
+                {
+                    // Try to create the directory.
+                    DirectoryInfo di = Directory.CreateDirectory(path);
+                    Console.WriteLine("The directory was created successfully at {0}.", Directory.GetCreationTime(path));
+                }
+
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine("The process failed: {0}", e.ToString());
+            }
+
+
             using (StreamWriter file = new StreamWriter(@"C:\Generator Files\" + pageName + "PageFactoryPageObject.txt"))
             {
                 {
@@ -463,7 +536,7 @@ namespace PageObjectCreator
                                    + Environment.NewLine);
                 }
 
-                foreach (var element in pageElements)
+                foreach (var element in pageElements.Distinct())
                 {
                     if (element.Key.Contains("Logo") || (element.Key.Contains("Image")))
                     {
@@ -471,6 +544,7 @@ namespace PageObjectCreator
                                        + Environment.NewLine
                                        + "[CacheLookup]"
                                        + "public IWebElement " + element.Key + " { get; set; }"
+                                       + Environment.NewLine
                             );
 
                     }
@@ -481,6 +555,7 @@ namespace PageObjectCreator
                                        + Environment.NewLine
                                        + "[CacheLookup]"
                                        + "public IWebElement " + element.Key + " { get; set; }"
+                                       + Environment.NewLine
                             );
                     }
 
@@ -490,6 +565,7 @@ namespace PageObjectCreator
                                        + Environment.NewLine
                                        + "[CacheLookup]"
                                        + "public IWebElement " + element.Key + " { get; set; }"
+                                       + Environment.NewLine
                             );
                     }
 
@@ -499,6 +575,7 @@ namespace PageObjectCreator
                                        + Environment.NewLine
                                        + "[CacheLookup]"
                                        + "public IWebElement " + element.Key + " { get; set; }"
+                                       + Environment.NewLine
                             );
                     }
 
@@ -508,6 +585,7 @@ namespace PageObjectCreator
                                        + Environment.NewLine
                                        + "[CacheLookup]"
                                        + "public IWebElement " + element.Key + " { get; set; }"
+                                       + Environment.NewLine
                             );
                     }
 
@@ -517,6 +595,7 @@ namespace PageObjectCreator
                                        + Environment.NewLine
                                        + "[CacheLookup]"
                                        + "public IWebElement " + element.Key + " { get; set; }"
+                                       + Environment.NewLine
                             );
                     }
 
@@ -526,6 +605,7 @@ namespace PageObjectCreator
                                        + Environment.NewLine
                                        + "[CacheLookup]"
                                        + "public IWebElement " + element.Key + " { get; set; }"
+                                       + Environment.NewLine
                             );
                     }
 
@@ -535,6 +615,7 @@ namespace PageObjectCreator
                                        + Environment.NewLine
                                        + "[CacheLookup]"
                                        + "public IWebElement " + element.Key + " { get; set; }"
+                                       + Environment.NewLine
                             );
                     }
                 }
@@ -607,109 +688,145 @@ namespace PageObjectCreator
 
         }
 
-        public void WriteGeneralPageObject(IEnumerable<string> pageElements)
+        public void WriteGeneralPageObject(Dictionary<string, string> pageElements, string pageName)
         {
-            using (StreamWriter file = new StreamWriter(@"C:\Generator Files\NewPageObjectFile.txt"))
+            using (StreamWriter file = new StreamWriter(@"C:\Generator Files\" + pageName + "PageFactoryPageObject.txt")
+                )
             {
                 {
-                    file.WriteLine("using OpenQA.Selenium;" + Environment.NewLine +
-                                   "using System;" + Environment.NewLine +
+                    file.WriteLine("using System;" + Environment.NewLine +
                                    "using System.Collections.Generic;" + Environment.NewLine +
                                    "using System.Configuration;" + Environment.NewLine +
                                    "using System.Linq;" + Environment.NewLine +
                                    "using System.Text;" + Environment.NewLine +
                                    "using System.Threading.Tasks;" + Environment.NewLine +
-                                   "");
+                                   "using OpenQA.Selenium;" + Environment.NewLine +
+                                   "using OpenQA.Selenium.Support.PageObjects;");
                 }
 
                 {
-                    file.WriteLine("namespace " + ConfigurationManager.AppSettings["PageName"] +
+                    file.WriteLine("namespace " + pageName +
                                    ".Pages" + Environment.NewLine + "{"
                                    + Environment.NewLine +
-                                   "public class " + ConfigurationManager.AppSettings["PageName"] +
+                                   "public class " + pageName +
                                    Environment.NewLine + "{"
                                    + Environment.NewLine + "#region Locators"
                                    + Environment.NewLine);
                 }
 
-                foreach (var element in pageElements)
+                foreach (var element in pageElements.Distinct())
                 {
-                    if (element.Contains("Logo") || (element.Contains("Image")))
+                    if (element.Key.Contains("Logo") || (element.Key.Contains("Image")))
                     {
-                        file.WriteLine("protected By " + element + "Locator" +
-                                       " = By.XPath(\"//select[@id = ''][@placeholder = '']\");");
+                        file.WriteLine("protected By " + element.Key + "Locator" + " = By.XPath(" + element.Value + ");");
 
                     }
 
+                    else if (element.Key.Contains("TextBox"))
                     {
-                        file.WriteLine(Environment.NewLine + "#endregion");
+                        file.WriteLine("protected By " + element.Key + "Locator" + " = By.XPath(" + element.Value + ");");
                     }
 
+                    else if (element.Key.Contains("Text"))
                     {
-                        file.WriteLine(Environment.NewLine + "#region constructor"
-                                       + Environment.NewLine
-                                       + Environment.NewLine);
+                        file.WriteLine("protected By " + element.Key + "Locator" + " = By.XPath(" + element.Value + ");");
                     }
 
+                    else if (element.Key.Contains("Link") || (element.Key.Contains("Tab")))
                     {
-                        file.Write("public " + ConfigurationManager.AppSettings["PageName"] + "(IWebDriver driver)"
-                                   + Environment.NewLine + "{"
-                                   + Environment.NewLine
-                                   + Environment.NewLine + "this.Driver = driver;"
-                                   + Environment.NewLine
-                                   + Environment.NewLine
-                                   + Environment.NewLine + "}"
-                                   + Environment.NewLine);
+                        file.WriteLine("protected By " + element.Key + "Locator" + " = By.XPath(" + element.Value + ");");
                     }
 
+                    else if (element.Key.Contains("DropDown"))
                     {
-                        file.WriteLine("protected void WaitForPageToLoad()"
-                                       + Environment.NewLine + "{"
-                                       + Environment.NewLine
-                                       + Environment.NewLine + "}"
-                                       + Environment.NewLine
-                                       + Environment.NewLine);
+                        file.WriteLine("protected By " + element.Key + "Locator" + " = By.XPath(" + element.Value + ");");
                     }
 
+                    else if (element.Key.Contains("CheckBox"))
                     {
-                        file.WriteLine("protected void ValidatePageLoaded()"
-                                       + Environment.NewLine + "{"
-                                       + Environment.NewLine
-                                       + Environment.NewLine + "}"
-                                       + Environment.NewLine
-                                       + Environment.NewLine + "#endregion"
-                                       + Environment.NewLine);
+                        file.WriteLine("protected By " + element.Key + "Locator" + " = By.XPath(" + element.Value + ");");
                     }
 
-
+                    else if (element.Key.Contains("Button"))
                     {
-                        file.WriteLine(Environment.NewLine
-                                       + Environment.NewLine + "};"
-                                       + Environment.NewLine + "}"
-                                       + Environment.NewLine + "}"
-                                       + Environment.NewLine);
+                        file.WriteLine("protected By " + element.Key + "Locator" + " = By.XPath(" + element.Value + ");");
                     }
 
+                    else
                     {
-                        file.WriteLine(Environment.NewLine
-                                       + Environment.NewLine + "#endregion"
-                                       + Environment.NewLine
-                                       + Environment.NewLine
-                                       + Environment.NewLine + "#region Actions"
-                                       + Environment.NewLine
-                                       + Environment.NewLine
-                                       + Environment.NewLine + "#endregion"
-                                       + Environment.NewLine
-                                       + Environment.NewLine + "}"
-                                       + Environment.NewLine
-                                       + Environment.NewLine + "}");
+                        file.WriteLine("protected By " + element.Key + "Locator" + " = By.XPath(" + element.Value + ");");
                     }
                 }
 
-            }
+                {
+                    file.WriteLine(Environment.NewLine + "#endregion");
+                }
 
+                {
+                    file.WriteLine(Environment.NewLine + "#region constructor"
+                                   + Environment.NewLine
+                                   + Environment.NewLine);
+                }
+
+                {
+                    file.Write("public " + ConfigurationManager.AppSettings["PageName"] + "(IWebDriver driver)"
+                               + Environment.NewLine + "{"
+                               + Environment.NewLine
+                               + Environment.NewLine + "this.Driver = driver;"
+                               + Environment.NewLine
+                               + Environment.NewLine
+                               + Environment.NewLine + "}"
+                               + Environment.NewLine);
+                }
+
+                {
+                    file.WriteLine("protected void WaitForPageToLoad()"
+                                   + Environment.NewLine + "{"
+                                   + Environment.NewLine
+                                   + Environment.NewLine + "}"
+                                   + Environment.NewLine
+                                   + Environment.NewLine);
+                }
+
+                {
+                    file.WriteLine("protected void ValidatePageLoaded()"
+                                   + Environment.NewLine + "{"
+                                   + Environment.NewLine
+                                   + Environment.NewLine + "}"
+                                   + Environment.NewLine
+                                   + Environment.NewLine + "#endregion"
+                                   + Environment.NewLine);
+                }
+
+
+                {
+                    file.WriteLine(Environment.NewLine
+                                   + Environment.NewLine + "};"
+                                   + Environment.NewLine + "}"
+                                   + Environment.NewLine + "}"
+                                   + Environment.NewLine);
+                }
+
+                {
+                    file.WriteLine(Environment.NewLine
+                                   + Environment.NewLine + "#endregion"
+                                   + Environment.NewLine
+                                   + Environment.NewLine
+                                   + Environment.NewLine + "#region Actions"
+                                   + Environment.NewLine
+                                   + Environment.NewLine
+                                   + Environment.NewLine + "#endregion"
+                                   + Environment.NewLine
+                                   + Environment.NewLine + "}"
+                                   + Environment.NewLine
+                                   + Environment.NewLine + "}");
+                }
+            }
         }
     }
 
 }
+    
+
+
 
