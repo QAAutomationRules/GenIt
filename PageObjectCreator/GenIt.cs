@@ -67,9 +67,11 @@ namespace PageObjectCreator
 
                     string pageName = crawledPage.Uri.AbsoluteUri.Remove(crawledPage.Uri.AbsoluteUri.Length -
                                                                          crawledPage.Uri.Segments.Last().Length);
-                    pageName = pageName.Replace("http://", string.Empty);
-                    pageName = pageName.RegexReplace("[^a-zA-Z0-9]", "");
-                    pageName = pageName.ToUpperInvariant();
+
+                    pageName = pageName.RegexReplace("[^a-zA-Z0-9]", string.Empty);
+                    pageName = pageName.Replace("httpwww", string.Empty);
+                    pageName = pageName.Replace("com", string.Empty);
+                    
 
                     //need to create Page Objects by the pages that were successfully crawled
                     WritePageFactoryPageObject(GetPageElements(crawledPage.Uri.AbsoluteUri),
@@ -536,7 +538,12 @@ namespace PageObjectCreator
                                    + Environment.NewLine);
                 }
 
-                foreach (var element in pageElements.Distinct())
+                //remove duplicate values from the Dictionary
+                var uniqueValues = pageElements.GroupBy(pair => pair.Value)
+                         .Select(group => group.First())
+                         .ToDictionary(pair => pair.Key, pair => pair.Value);
+
+                foreach (var element in uniqueValues)
                 {
                     if (element.Key.Contains("Logo") || (element.Key.Contains("Image")))
                     {
