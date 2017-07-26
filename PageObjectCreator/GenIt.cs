@@ -513,7 +513,7 @@ namespace PageObjectCreator
             }
 
 
-            using (StreamWriter file = new StreamWriter(@"C:\Generator Files\" + pageName + "PageObject.txt"))
+            using (StreamWriter file = new StreamWriter(@"C:\Generator Files\" + pageName + ".txt"))
             {
                 {
                     file.WriteLine("using System;" + Environment.NewLine +
@@ -523,16 +523,23 @@ namespace PageObjectCreator
                                    "using System.Text;" + Environment.NewLine +
                                    "using System.Threading.Tasks;" + Environment.NewLine +
                                    "using OpenQA.Selenium;" + Environment.NewLine +
-                                   "using OpenQA.Selenium.Support.PageObjects;");
+                                   "using OpenQA.Selenium.Support.PageObjects;"
+                                   + Environment.NewLine);
                 }
 
                 {
-                    file.WriteLine("namespace " + pageName +
-                                   ".Pages" + Environment.NewLine + "{"
-                                   + Environment.NewLine +
-                                   "public class " + pageName +
-                                   Environment.NewLine + "{"
-                                   + Environment.NewLine + "#region Locators"
+                    file.WriteLine(Environment.NewLine +
+                                    "namespace " + pageName +".Pages" 
+                                   + Environment.NewLine 
+                                   + "{"
+                                   + Environment.NewLine
+                                   + Environment.NewLine
+                                   "public class " + pageName 
+                                   + Environment.NewLine 
+                                   + "{"
+                                   + Environment.NewLine
+                                   + Environment.NewLine
+                                   + "#region Locators"
                                    + Environment.NewLine);
                 }
 
@@ -545,10 +552,11 @@ namespace PageObjectCreator
                 {
                     if (element.Key.Contains("Logo") || (element.Key.Contains("Image")))
                     {
-                        file.WriteLine("[FindsBy(How = How.XPath, Using = " + element.Value + "]"
+                        file.WriteLine("[FindsBy(How = How.XPath, Using = \"" + element.Value + "\")]"
                                        + Environment.NewLine
                                        + "[CacheLookup]"
-                                       + "public IWebElement " + element.Key + " { get; set; }"
+                                       + Environment.NewLine
+                                       + "public IWebElement " + element.Key + "Image " + " { get; set; }"
                                        + Environment.NewLine
                             );
 
@@ -556,69 +564,76 @@ namespace PageObjectCreator
 
                     else if (element.Key.Contains("TextBox"))
                     {
-                        file.WriteLine("[FindsBy(How = How.XPath, Using = " + element.Value + "]"
+                        file.WriteLine("[FindsBy(How = How.XPath, Using = \"" + element.Value + "\")]"
                                        + Environment.NewLine
                                        + "[CacheLookup]"
-                                       + "public IWebElement " + element.Key + " { get; set; }"
+                                       + Environment.NewLine
+                                       + "public IWebElement " + element.Key + "TextBox " + " { get; set; }"
                                        + Environment.NewLine
                             );
                     }
 
                     else if (element.Key.Contains("Text"))
                     {
-                        file.WriteLine("[FindsBy(How = How.XPath, Using = " + element.Value + "]"
+                        file.WriteLine("[FindsBy(How = How.XPath, Using = \"" + element.Value + "\")]"
                                        + Environment.NewLine
                                        + "[CacheLookup]"
-                                       + "public IWebElement " + element.Key + " { get; set; }"
+                                       + Environment.NewLine
+                                       + "public IWebElement " + element.Key + "Text " + " { get; set; }"
                                        + Environment.NewLine
                             );
                     }
 
                     else if (element.Key.Contains("Link") || (element.Key.Contains("Tab")))
                     {
-                        file.WriteLine("[FindsBy(How = How.XPath, Using = " + element.Value + "]"
+                        file.WriteLine("[FindsBy(How = How.XPath, Using = \"" + element.Value + "\")]"
                                        + Environment.NewLine
                                        + "[CacheLookup]"
-                                       + "public IWebElement " + element.Key + " { get; set; }"
+                                       + Environment.NewLine
+                                       + "public IWebElement " + element.Key + "Link " + " { get; set; }"
                                        + Environment.NewLine
                             );
                     }
 
                     else if (element.Key.Contains("DropDown"))
                     {
-                        file.WriteLine("[FindsBy(How = How.XPath, Using = " + element.Value + "]"
+                        file.WriteLine("[FindsBy(How = How.XPath, Using = \"" + element.Value + "\")]"
                                        + Environment.NewLine
                                        + "[CacheLookup]"
-                                       + "public IWebElement " + element.Key + " { get; set; }"
+                                       + Environment.NewLine
+                                       + "public IWebElement " + element.Key + "DropDown " + " { get; set; }"
                                        + Environment.NewLine
                             );
                     }
 
                     else if (element.Key.Contains("CheckBox"))
                     {
-                        file.WriteLine("[FindsBy(How = How.XPath, Using = " + element.Value + "]"
+                        file.WriteLine("[FindsBy(How = How.XPath, Using = \"" + element.Value + "\")]"
                                        + Environment.NewLine
                                        + "[CacheLookup]"
-                                       + "public IWebElement " + element.Key + " { get; set; }"
+                                       + Environment.NewLine
+                                       + "public IWebElement " + element.Key + "CheckBox " + " { get; set; }"
                                        + Environment.NewLine
                             );
                     }
 
                     else if (element.Key.Contains("Button"))
                     {
-                        file.WriteLine("[FindsBy(How = How.XPath, Using = " + element.Value + "]"
+                        file.WriteLine("[FindsBy(How = How.XPath, Using = \"" + element.Value + "\")]"
                                        + Environment.NewLine
                                        + "[CacheLookup]"
-                                       + "public IWebElement " + element.Key + " { get; set; }"
+                                       + Environment.NewLine
+                                       + "public IWebElement " + element.Key + "Button " + " { get; set; }"
                                        + Environment.NewLine
                             );
                     }
 
                     else
                     {
-                        file.WriteLine("[FindsBy(How = How.XPath, Using = " + element.Value + "]"
+                        file.WriteLine("[FindsBy(How = How.XPath, Using = \"" + element.Value + "\")]"
                                        + Environment.NewLine
                                        + "[CacheLookup]"
+                                       + Environment.NewLine
                                        + "public IWebElement " + element.Key + " { get; set; }"
                                        + Environment.NewLine
                             );
@@ -644,6 +659,7 @@ namespace PageObjectCreator
                                + Environment.NewLine
                                + Environment.NewLine
                                + Environment.NewLine + "}"
+                               + Environment.NewLine
                                + Environment.NewLine);
                 }
 
@@ -669,15 +685,6 @@ namespace PageObjectCreator
 
                 {
                     file.WriteLine(Environment.NewLine
-                                   + Environment.NewLine + "};"
-                                   + Environment.NewLine + "}"
-                                   + Environment.NewLine + "}"
-                                   + Environment.NewLine);
-                }
-
-                {
-                    file.WriteLine(Environment.NewLine
-                                   + Environment.NewLine + "#endregion"
                                    + Environment.NewLine
                                    + Environment.NewLine
                                    + Environment.NewLine + "#region Actions"
