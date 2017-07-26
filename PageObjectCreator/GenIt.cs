@@ -534,7 +534,7 @@ namespace PageObjectCreator
                                    + "{"
                                    + Environment.NewLine
                                    + Environment.NewLine
-                                   "public class " + pageName 
+                                   + "public class " + pageName 
                                    + Environment.NewLine 
                                    + "{"
                                    + Environment.NewLine
