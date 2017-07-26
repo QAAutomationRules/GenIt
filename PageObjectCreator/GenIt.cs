@@ -60,23 +60,21 @@ namespace PageObjectCreator
             }
             else
             {
+                
                 Console.WriteLine("Crawl of page succeeded {0}", crawledPage.Uri.AbsoluteUri);
-                Console.WriteLine("Crawl of page succeeded {0}", crawledPage.Uri.AbsoluteUri);
+
                 if (ConfigurationManager.AppSettings["PageObjectType"] == "PageFactory")
                 {
 
-                    string pageName = crawledPage.Uri.AbsoluteUri.Remove(crawledPage.Uri.AbsoluteUri.Length -
-                                                                         crawledPage.Uri.Segments.Last().Length);
-
+                    string pageName = crawledPage.Uri.Segments.LastOrDefault();
+                                                                         
                     pageName = pageName.RegexReplace("[^a-zA-Z0-9]", string.Empty);
-                    pageName = pageName.Replace("httpwww", string.Empty);
-                    pageName = pageName.Replace("com", string.Empty);
                     
-
                     //need to create Page Objects by the pages that were successfully crawled
                     WritePageFactoryPageObject(GetPageElements(crawledPage.Uri.AbsoluteUri),
                         pageName);
 
+                    Console.WriteLine("PageFactory PageObject Created");
                 }
                 else if (ConfigurationManager.AppSettings["PageObjectType"] == "PageObjectGeneral")
                 {
@@ -515,7 +513,7 @@ namespace PageObjectCreator
             }
 
 
-            using (StreamWriter file = new StreamWriter(@"C:\Generator Files\" + pageName + "PageFactoryPageObject.txt"))
+            using (StreamWriter file = new StreamWriter(@"C:\Generator Files\" + pageName + "PageObject.txt"))
             {
                 {
                     file.WriteLine("using System;" + Environment.NewLine +
@@ -697,7 +695,7 @@ namespace PageObjectCreator
 
         public void WriteGeneralPageObject(Dictionary<string, string> pageElements, string pageName)
         {
-            using (StreamWriter file = new StreamWriter(@"C:\Generator Files\" + pageName + "PageFactoryPageObject.txt")
+            using (StreamWriter file = new StreamWriter(@"C:\Generator Files\" + pageName + "PageObject.txt")
                 )
             {
                 {
