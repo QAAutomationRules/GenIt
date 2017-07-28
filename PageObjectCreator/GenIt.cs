@@ -163,7 +163,7 @@ namespace PageObjectCreator
             }
 
 
-            using (StreamWriter file = new StreamWriter(@"C:\Generator Files\" + pageName + ".txt"))
+            using (StreamWriter file = new StreamWriter(@"C:\Generator Files\" + pageName + ".cs"))
             {
                 {
                     file.WriteLine("using System;" + Environment.NewLine +
