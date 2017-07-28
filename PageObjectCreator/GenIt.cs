@@ -72,6 +72,7 @@ namespace PageObjectCreator
                     string pageName = crawledPage.Uri.Segments.LastOrDefault();
 
                     pageName = pageName.RegexReplace("[^a-zA-Z0-9]", string.Empty);
+                    pageName = pageName.RegexReplace(@"\d", string.Empty);
 
                     //need to create Page Objects by the pages that were successfully crawled
                     WritePageFactoryPageObject(GetPageElements(crawledPage.Uri.AbsoluteUri),
@@ -81,10 +82,16 @@ namespace PageObjectCreator
                 }
                 else if (ConfigurationManager.AppSettings["PageObjectType"] == "PageObjectGeneral")
                 {
-                    // need to create Page Objects by the pages that were successfully crawled
-                    WriteGeneralPageObject(GetPageElements(crawledPage.Uri.AbsoluteUri),
-                        crawledPage.Uri.AbsoluteUri.Remove(crawledPage.Uri.AbsoluteUri.Length -
-                                                           crawledPage.Uri.Segments.Last().Length));
+                    string pageName = crawledPage.Uri.Segments.LastOrDefault();
+
+                    pageName = pageName.RegexReplace("[^a-zA-Z0-9]", string.Empty);
+                    pageName = pageName.RegexReplace(@"\d", string.Empty);
+
+                    //need to create Page Objects by the pages that were successfully crawled
+                    WritePageFactoryPageObject(GetPageElements(crawledPage.Uri.AbsoluteUri),
+                    pageName);
+
+                    Console.WriteLine("PageObject Created");
                 }
                 Console.WriteLine(crawledPage.Uri.AbsoluteUri);
             }
