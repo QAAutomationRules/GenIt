@@ -31,16 +31,18 @@ namespace PageObjectCreator
             crawler.PageCrawlCompletedAsync += crawler_ProcessPageCrawlCompleted;
 
             crawler.PageCrawlDisallowedAsync += crawler_PageCrawlDisallowed;
-            crawler.PageLinksCrawlDisallowedAsync += crawler_PageLinksCrawlDisallowed;
+            crawler.PageLinksCrawlDisallowedAsync += crawler_PageLinksCrawlDisallowed;    
 
             CrawlResult result = crawler.Crawl(new Uri(ConfigurationManager.AppSettings["HomePageURL"]));
+
+            dynamic blah = crawler.CrawlBag;
 
             int count = result.CrawlContext.CrawledCount;
 
             Console.WriteLine(result.CrawlContext.ToJSON());
 
             Console.WriteLine(result.ToJSON());
-            Console.WriteLine("Total Crawled Page Count = " + count);
+            Console.WriteLine("Total Crawled Page Count = " + count);            
 
         }
 
@@ -54,7 +56,7 @@ namespace PageObjectCreator
         void crawler_ProcessPageCrawlCompleted(object sender, PageCrawlCompletedArgs e)
         {
             CrawledPage crawledPage = e.CrawledPage;
-
+            
             if (crawledPage.WebException != null || crawledPage.HttpWebResponse.StatusCode != HttpStatusCode.OK)
             {
                 Console.WriteLine("Crawl of page failed {0}", crawledPage.Uri.AbsoluteUri);
@@ -73,7 +75,7 @@ namespace PageObjectCreator
 
                     //need to create Page Objects by the pages that were successfully crawled
                     WritePageFactoryPageObject(GetPageElements(crawledPage.Uri.AbsoluteUri),
-                        pageName);
+                    pageName);
 
                     Console.WriteLine("PageFactory PageObject Created");
                 }
@@ -90,10 +92,8 @@ namespace PageObjectCreator
             {
                 Console.WriteLine("Page had no content {0}", crawledPage.Uri.AbsoluteUri);
             }
-
-            var htmlAgilityPackDocument = crawledPage.HtmlDocument; //Html Agility Pack parser
-            var angleSharpHtmlDocument = crawledPage.AngleSharpHtmlDocument; //AngleSharp parser
-
+            
+            
         }
 
         void crawler_PageLinksCrawlDisallowed(object sender, PageLinksCrawlDisallowedArgs e)
@@ -122,7 +122,6 @@ namespace PageObjectCreator
 
             try
             {
-
                 GetXpaths(SetTags(), doc, elementKeyValuePair);             
             }
 
@@ -135,7 +134,7 @@ namespace PageObjectCreator
             return elementKeyValuePair;
         }
 
-
+        
         public void WritePageFactoryPageObject(Dictionary<string, string> pageElements, string pageName)
         {
 

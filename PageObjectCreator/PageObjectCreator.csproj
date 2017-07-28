@@ -58,10 +58,6 @@
       <Private>True</Private>
     </Reference>
     <Reference Include="Microsoft.CSharp" />
-    <Reference Include="MisterHex.WebCrawling, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\MisterHex.WebCrawling.1.0.0.5\lib\net45\MisterHex.WebCrawling.dll</HintPath>
-      <Private>True</Private>
-    </Reference>
     <Reference Include="Robots, Version=1.0.8.0, Culture=neutral, processorArchitecture=MSIL">
       <HintPath>..\packages\NRobotsPatched.1.0.8.0\lib\net40\Robots.dll</HintPath>
       <Private>True</Private>
