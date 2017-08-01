@@ -24,7 +24,7 @@ namespace PageObjectCreator
         public void GenStuff()
         {
             PoliteWebCrawler crawler = new PoliteWebCrawler();
-
+            
             crawler.PageCrawlStartingAsync += crawler_ProcessPageCrawlStarting;
 
             //PageObjects are being created as they are asynchronously found during the crawl
@@ -35,15 +35,16 @@ namespace PageObjectCreator
 
             CrawlResult result = crawler.Crawl(new Uri(ConfigurationManager.AppSettings["HomePageURL"]));
 
-            dynamic blah = crawler.CrawlBag;
-
             int count = result.CrawlContext.CrawledCount;
 
             Console.WriteLine(result.CrawlContext.ToJSON());
 
             Console.WriteLine(result.ToJSON());
-            Console.WriteLine("Total Crawled Page Count = " + count);            
+            Console.WriteLine("Total Crawled Page Count = " + count);
 
+            dynamic thing = crawler.CrawlBag;
+
+            Console.WriteLine(thing);
         }
 
         void crawler_ProcessPageCrawlStarting(object sender, PageCrawlStartingArgs e)
@@ -68,15 +69,19 @@ namespace PageObjectCreator
 
                 if (ConfigurationManager.AppSettings["PageObjectType"] == "PageFactory")
                 {
-
+                    
                     string pageName = crawledPage.Uri.Segments.LastOrDefault();
 
                     pageName = pageName.RegexReplace("[^a-zA-Z0-9]", string.Empty);
                     pageName = pageName.RegexReplace(@"\d", string.Empty);
+                    pageName = pageName.ToUpperInvariant();
 
                     //need to create Page Objects by the pages that were successfully crawled
                     WritePageFactoryPageObject(GetPageElements(crawledPage.Uri.AbsoluteUri),
                     pageName);
+
+                    CrawlContext context = e.CrawlContext;
+                    context.CrawlBag = e.CrawledPage.Content;
 
                     Console.WriteLine("PageFactory PageObject Created");
                 }
@@ -207,7 +212,7 @@ namespace PageObjectCreator
 
                 foreach (var element in uniqueValues)
                 {
-                    if (element.Key.Contains("Logo") || (element.Key.Contains("Image")))
+                    if (element.Key.Contains("Image"))
                     {
                         file.WriteLine("[FindsBy(How = How.XPath, Using = \"" + element.Value + "\")]"
                                        + Environment.NewLine
@@ -241,7 +246,7 @@ namespace PageObjectCreator
                             );
                     }
 
-                    else if (element.Key.Contains("Link") || (element.Key.Contains("Tab")))
+                    else if (element.Key.Contains("Link"))
                     {
                         file.WriteLine("[FindsBy(How = How.XPath, Using = \"" + element.Value + "\")]"
                                        + Environment.NewLine
@@ -281,6 +286,17 @@ namespace PageObjectCreator
                                        + "[CacheLookup]"
                                        + Environment.NewLine
                                        + "public IWebElement " + element.Key + "Button " + " { get; set; }"
+                                       + Environment.NewLine
+                            );
+                    }
+
+                    else if (element.Key.Contains("ListItem"))
+                    {
+                        file.WriteLine("[FindsBy(How = How.XPath, Using = \"" + element.Value + "\")]"
+                                       + Environment.NewLine
+                                       + "[CacheLookup]"
+                                       + Environment.NewLine
+                                       + "public IWebElement " + element.Key + "ListItem " + " { get; set; }"
                                        + Environment.NewLine
                             );
                     }
@@ -548,6 +564,12 @@ namespace PageObjectCreator
                                             tag.Key + "[@" + attribute.Name + "=" + "'" +
                                             attribute.Value + "']");
                                     }
+                                    else if (attribute.Name.Contains("src"))
+                                    {
+                                        elementKeyValuePair.Add(tag.Value + Guid.NewGuid().ToString("N"),
+                                            tag.Key + "[@" + attribute.Name + "=" + "'" +
+                                            attribute.Value + "']");
+                                    }
                                     else if (attribute.Name.Contains("class"))
                                     {
                                         elementKeyValuePair.Add(tag.Value + Guid.NewGuid().ToString("N"),
@@ -592,6 +614,7 @@ namespace PageObjectCreator
             tags.Add("//Button", "Button");
             tags.Add("//label", "Text");
             tags.Add("//td", "Table");
+            tags.Add("//li", "ListItem");
             tags.Add("//div[@id]", "DivSection");
             tags.Add("//div[@class]", "DivClass");
 
