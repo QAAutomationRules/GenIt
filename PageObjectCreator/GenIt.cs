@@ -312,6 +312,17 @@ namespace PageObjectCreator
                             );
                     }
 
+                    else if (element.Key.Contains("Table"))
+                    {
+                        file.WriteLine("[FindsBy(How = How.XPath, Using = \"" + element.Value + "\")]"
+                                       + Environment.NewLine
+                                       + "[CacheLookup]"
+                                       + Environment.NewLine
+                                       + "public IWebElement " + element.Key + " { get; set; }"
+                                       + Environment.NewLine
+                            );
+                    }
+
                     else
                     {
                         file.WriteLine("[FindsBy(How = How.XPath, Using = \"" + element.Value + "\")]"
@@ -617,6 +628,7 @@ namespace PageObjectCreator
             tags.Add("//h4", "H4Text");
             tags.Add("//h5", "H5Text");
             tags.Add("//h6", "H6Text");
+            tags.Add("//strong", "Text");
             tags.Add("//p", "Text");
             tags.Add("//a", "Link");
             tags.Add("//img", "Image");
@@ -624,7 +636,10 @@ namespace PageObjectCreator
             tags.Add("//input", "TextBox");
             tags.Add("//Button", "Button");
             tags.Add("//label", "Text");
-            tags.Add("//td", "Table");
+            tags.Add("//td", "TableCell");
+            tags.Add("//th", "TableHeaderCell");
+            tags.Add("//tr", "TableRowCell");
+            tags.Add("//table", "Table");
             tags.Add("//li", "ListItem");
             tags.Add("//span", "SpanItem");
             tags.Add("//div[@id]", "DivSection");
