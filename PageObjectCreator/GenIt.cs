@@ -634,7 +634,7 @@ namespace PageObjectCreator
             tags.Add("//img", "Image");
             tags.Add("//select", "DropDown");
             tags.Add("//input", "TextBox");
-            tags.Add("//Button", "Button");
+            tags.Add("//button", "Button");
             tags.Add("//label", "Text");
             tags.Add("//td", "TableCell");
             tags.Add("//th", "TableHeaderCell");
