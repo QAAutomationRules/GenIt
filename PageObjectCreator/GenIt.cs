@@ -301,6 +301,17 @@ namespace PageObjectCreator
                             );
                     }
 
+                    else if (element.Key.Contains("SpanItem"))
+                    {
+                        file.WriteLine("[FindsBy(How = How.XPath, Using = \"" + element.Value + "\")]"
+                                       + Environment.NewLine
+                                       + "[CacheLookup]"
+                                       + Environment.NewLine
+                                       + "public IWebElement " + element.Key + "SpanItem " + " { get; set; }"
+                                       + Environment.NewLine
+                            );
+                    }
+
                     else
                     {
                         file.WriteLine("[FindsBy(How = How.XPath, Using = \"" + element.Value + "\")]"
@@ -615,6 +626,7 @@ namespace PageObjectCreator
             tags.Add("//label", "Text");
             tags.Add("//td", "Table");
             tags.Add("//li", "ListItem");
+            tags.Add("//span", "SpanItem");
             tags.Add("//div[@id]", "DivSection");
             tags.Add("//div[@class]", "DivClass");
 
