@@ -42,9 +42,8 @@ namespace PageObjectCreator
             Console.WriteLine(result.ToJSON());
             Console.WriteLine("Total Crawled Page Count = " + count);
 
-            dynamic thing = crawler.CrawlBag;
+            
 
-            Console.WriteLine(thing);
         }
 
         void crawler_ProcessPageCrawlStarting(object sender, PageCrawlStartingArgs e)
@@ -151,7 +150,7 @@ namespace PageObjectCreator
         {
 
             // Specify the directory you want to manipulate.
-            string path = @"C:\Generator Files\";
+            string path = @"\Pages\";
 
             try
             {
@@ -175,7 +174,7 @@ namespace PageObjectCreator
             }
 
 
-            using (StreamWriter file = new StreamWriter(@"C:\Generator Files\" + pageName + ".cs"))
+            using (StreamWriter file = new StreamWriter(@"\Pages\" + pageName + ".cs"))
             {
                 {
                     file.WriteLine("using System;" + Environment.NewLine +
@@ -397,7 +396,7 @@ namespace PageObjectCreator
 
         public void WriteGeneralPageObject(Dictionary<string, string> pageElements, string pageName)
         {
-            using (StreamWriter file = new StreamWriter(@"C:\Generator Files\" + pageName + "PageObject.txt")
+            using (StreamWriter file = new StreamWriter(@"\Pages\" + pageName + "PageObject.txt")
                 )
             {
                 {
