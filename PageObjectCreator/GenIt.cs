@@ -12,8 +12,10 @@ using CsQuery.ExtensionMethods;
 using CsQuery.ExtensionMethods.Internal;
 using HtmlAgilityPack;
 using System.IO;
+using System.Reflection;
 using System.Security.Cryptography.X509Certificates;
 using System.Text;
+using FluentAssertions.Common;
 
 namespace PageObjectCreator
 {
@@ -24,14 +26,14 @@ namespace PageObjectCreator
         public void GenStuff()
         {
             PoliteWebCrawler crawler = new PoliteWebCrawler();
-            
+
             crawler.PageCrawlStartingAsync += crawler_ProcessPageCrawlStarting;
 
             //PageObjects are being created as they are asynchronously found during the crawl
             crawler.PageCrawlCompletedAsync += crawler_ProcessPageCrawlCompleted;
 
             crawler.PageCrawlDisallowedAsync += crawler_PageCrawlDisallowed;
-            crawler.PageLinksCrawlDisallowedAsync += crawler_PageLinksCrawlDisallowed;    
+            crawler.PageLinksCrawlDisallowedAsync += crawler_PageLinksCrawlDisallowed;
 
             CrawlResult result = crawler.Crawl(new Uri(ConfigurationManager.AppSettings["HomePageURL"]));
 
@@ -42,7 +44,16 @@ namespace PageObjectCreator
             Console.WriteLine(result.ToJSON());
             Console.WriteLine("Total Crawled Page Count = " + count);
 
-            
+            ////Parse txt file URLS and Get all page elements from each page and put into a dictionary
+            //var xpathElements = CreateXpathsFromUrls();
+
+            ////Get all values that are the same
+            //var sameValues = GetSameValues(xpathElements);
+
+            ////get New Elements that do not exist on multiple pages
+            //var newElements = GetNewElements(sameValues, xpathElements);
+
+            Console.WriteLine("hello");
 
         }
 
@@ -63,39 +74,40 @@ namespace PageObjectCreator
             }
             else
             {
-
                 Console.WriteLine("Crawl of page succeeded {0}", crawledPage.Uri.AbsoluteUri);
 
                 if (ConfigurationManager.AppSettings["PageObjectType"] == "PageFactory")
                 {
-                    
                     string pageName = crawledPage.Uri.Segments.LastOrDefault();
 
                     pageName = pageName.RegexReplace("[^a-zA-Z0-9]", string.Empty);
                     pageName = pageName.RegexReplace(@"\d", string.Empty);
-                    pageName = pageName.ToUpperInvariant();
+                    pageName = pageName.ToUpper();
 
-                    //need to create Page Objects by the pages that were successfully crawled
-                    WritePageFactoryPageObject(GetPageElements(crawledPage.Uri.AbsoluteUri),
-                    pageName);
+                    WritePageFactoryPageObject(GetPageElements(crawledPage.Uri.AbsoluteUri), pageName);
 
-                    CrawlContext context = e.CrawlContext;
-                    context.CrawlBag = e.CrawledPage.Content;
+                    //using (StreamWriter sw = File.AppendText(@"C:\Generator Files\URLs.txt"))
+                    //{
+                    //    sw.WriteLine(crawledPage.Uri.AbsoluteUri + ", " + pageName);
+                    //}
 
                     Console.WriteLine("PageFactory PageObject Created");
+
                 }
                 else if (ConfigurationManager.AppSettings["PageObjectType"] == "PageObjectGeneral")
                 {
+
                     string pageName = crawledPage.Uri.Segments.LastOrDefault();
 
                     pageName = pageName.RegexReplace("[^a-zA-Z0-9]", string.Empty);
                     pageName = pageName.RegexReplace(@"\d", string.Empty);
+                    pageName = pageName.ToUpper();
 
                     //need to create Page Objects by the pages that were successfully crawled
-                    WritePageFactoryPageObject(GetPageElements(crawledPage.Uri.AbsoluteUri),
-                    pageName);
+                    WriteGeneralPageObject(GetPageElements(crawledPage.Uri.AbsoluteUri), pageName);
 
                     Console.WriteLine("PageObject Created");
+
                 }
                 Console.WriteLine(crawledPage.Uri.AbsoluteUri);
             }
@@ -150,7 +162,7 @@ namespace PageObjectCreator
         {
 
             // Specify the directory you want to manipulate.
-            string path = @"\Pages\";
+            string path = @"./Pages/";
 
             try
             {
@@ -174,7 +186,7 @@ namespace PageObjectCreator
             }
 
 
-            using (StreamWriter file = new StreamWriter(@"\Pages\" + pageName + ".cs"))
+            using (StreamWriter file = new StreamWriter(path + pageName + ".cs"))
             {
                 {
                     file.WriteLine("using System;" + Environment.NewLine +
@@ -396,7 +408,7 @@ namespace PageObjectCreator
 
         public void WriteGeneralPageObject(Dictionary<string, string> pageElements, string pageName)
         {
-            using (StreamWriter file = new StreamWriter(@"\Pages\" + pageName + "PageObject.txt")
+            using (StreamWriter file = new StreamWriter(@"C:\Generator Files\" + pageName + "PageObject.txt")
                 )
             {
                 {
@@ -646,6 +658,77 @@ namespace PageObjectCreator
 
             return tags;
 
+        }
+
+
+        public Dictionary<string, string> CreateXpathsFromUrls()
+        {
+
+            Dictionary<string, string> pageElements = new Dictionary<string, string>();
+            List<string> urls = new List<string>();
+
+            // Open the file to read from.
+            using (StreamReader sr = File.OpenText(@"C:\Generator Files\URLs.txt"))
+            {
+                string s = "";
+                while ((s = sr.ReadLine()) != null)
+                {
+                    urls.Add(s);
+                }
+            }
+
+            foreach (var url in urls)
+            {
+                //need to create Page Objects by the pages that were successfully crawled
+                pageElements = GetPageElements(url);
+            }
+
+            return pageElements;
+            
+        }
+
+        //If duplicate or more Xpath Keys Exist get all of them and put into a new data structure
+        public List<string> GetSameValues(Dictionary<string, string> pageElements)
+        {
+
+           List<string> sameValues = new List<string>();
+
+            var result = from p in pageElements
+                group p by p.Value
+                into g
+                where g.Count() > 1
+                select g;
+
+            foreach (var r in result)
+            {
+                sameValues.Add(r.Key);
+            }
+
+            return sameValues;
+        }
+
+
+        public Dictionary<string, string> GetNewElements(List<string> sameValues, Dictionary<string, string> pageElements)
+        {
+            Dictionary<string, string> newThings = new Dictionary<string, string>();
+
+            var newElements = from pe in pageElements
+                join s in sameValues on pe.Value equals s
+                select pe;
+
+           foreach (var newElement in newElements)
+           {
+               newThings.Add(newElement.Key, newElement.Value);               
+           }
+
+            foreach (var newElement in newElements)
+            {
+                pageElements.Remove(newElement.Key);
+            }
+
+            //WritePageFactoryPageObject(newElements, );
+
+            return pageElements;
         }
     }
 }
